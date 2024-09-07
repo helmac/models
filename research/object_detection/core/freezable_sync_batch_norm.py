@@ -17,7 +17,7 @@
 import tensorflow as tf
 
 
-class FreezableSyncBatchNorm(tf.keras.layers.SyncBatchNormalization
+class FreezableSyncBatchNorm(tf.keras.layers.BatchNormalization
                             ):
   """Sync Batch normalization layer (Ioffe and Szegedy, 2014).
 
@@ -62,9 +62,10 @@ class FreezableSyncBatchNorm(tf.keras.layers.SyncBatchNormalization
     """
     super(FreezableSyncBatchNorm, self).__init__(**kwargs)
     self._training = training
+    self._synchronized = True
 
   def call(self, inputs, training=None):
     # Override the call arg only if the batchnorm is frozen. (Ignore None)
     if self._training is False:  # pylint: disable=g-bool-id-comparison
       training = self._training
-    return super(FreezableSyncBatchNorm, self).call(inputs, training=training)
+    return super(FreezableSyncBatchNorm, self).call(inputs, training=training, synchronized=self._synchronized)
